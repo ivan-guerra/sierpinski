@@ -9,8 +9,7 @@ static constexpr int kTriangleVertices = 3; /**< Triangle vertex count. */
 
 struct Point2D;
 
-using LineSegment =
-    std::vector<Point2D>; /**< Equally spaced points forming a line segment. */
+using LineSegment = std::vector<Point2D>; /**< Points on a line segment. */
 
 /**
  * \brief A point in 2D space.
