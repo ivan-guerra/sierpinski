@@ -14,7 +14,6 @@ static void PrintUsage() noexcept {
   std::cout << "usage: sierpinski [OPTION]..." << std::endl;
   std::cout << "an ncurses rendering of sierpinski's triangle" << std::endl;
   std::cout << "\t-d, --degree\t\tfractal degree" << std::endl;
-  std::cout << "\t-s, --side-length\tinitial triangle side length" << std::endl;
   std::cout << "\t-r, --refresh-rate\tscreen refresh rate in milliseconds"
             << std::endl;
   std::cout << "\t-h, --help\t\tprint this help page" << std::endl;
@@ -37,7 +36,7 @@ static void PrintErrAndExit(const std::string& err_msg) noexcept {
   return value;
 }
 
-static void RunDrawLoop(unsigned int degree, unsigned int side_length,
+static void RunDrawLoop(unsigned int degree,
                         unsigned int refresh_rate_ms) noexcept {
   /* Setup a blank screen. */
   std::optional<sierpinski::graphics::ScreenDimension> screen_dim =
@@ -50,11 +49,10 @@ static void RunDrawLoop(unsigned int degree, unsigned int side_length,
    * the degree of the fractal and drawing it on screen. */
   sierpinski::graphics::EnableInputDelay(refresh_rate_ms);
 
-  (void)degree;
   std::vector<sierpinski::Triangle> triangles(
-      1, sierpinski::util::CreateCenteredTriangle(
-             {.x = screen_dim->width / 2, .y = screen_dim->height / 2},
-             side_length));
+      1,
+      sierpinski::util::CreateCenteredTriangle(
+          {.x = screen_dim->width / 2, .y = screen_dim->height / 2}, degree));
   while (!sierpinski::graphics::UserRequestedToQuit()) {
     sierpinski::graphics::DrawTriangles(triangles);
     sierpinski::graphics::DrawInstructions(*screen_dim);
@@ -74,8 +72,7 @@ int main(int argc, char** argv) {
 
   int opt = 0;
   int long_index = 0;
-  unsigned int degree = 0;
-  unsigned int side_length = 10;
+  unsigned int degree = 8;
   unsigned int refresh_rate_ms = 100;
   while (-1 != (opt = ::getopt_long(argc, argv, "hd:s:r:",
                                     static_cast<struct option*>(long_options),
@@ -83,9 +80,6 @@ int main(int argc, char** argv) {
     switch (opt) {
       case 'd':
         degree = ParseUnsignedInt(optarg);
-        break;
-      case 's':
-        side_length = ParseUnsignedInt(optarg);
         break;
       case 'r':
         refresh_rate_ms = ParseUnsignedInt(optarg);
@@ -99,7 +93,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  RunDrawLoop(degree, side_length, refresh_rate_ms);
+  RunDrawLoop(degree, refresh_rate_ms);
 
   std::exit(EXIT_SUCCESS);
 }
