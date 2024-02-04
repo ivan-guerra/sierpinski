@@ -1,9 +1,16 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
+#include <vector>
+
 namespace sierpinski {
 
 static constexpr int kTriangleVertices = 3; /**< Triangle vertex count. */
+
+struct Point2D;
+
+using LineSegment =
+    std::vector<Point2D>; /**< Equally spaced points forming a line segment. */
 
 /**
  * \brief A point in 2D space.
