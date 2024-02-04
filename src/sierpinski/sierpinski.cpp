@@ -4,8 +4,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
+#include "common/types.h"
 #include "graphics/screen.h"
+#include "util/triangles.h"
 
 static void PrintUsage() noexcept {
   std::cout << "usage: sierpinski [OPTION]..." << std::endl;
@@ -48,8 +51,12 @@ static void RunDrawLoop(unsigned int degree, unsigned int side_length,
   sierpinski::graphics::EnableInputDelay(refresh_rate_ms);
 
   (void)degree;
-  (void)side_length;
+  std::vector<sierpinski::Triangle> triangles(
+      1, sierpinski::util::CreateCenteredTriangle(
+             {.x = screen_dim->width / 2, .y = screen_dim->height / 2},
+             side_length));
   while (!sierpinski::graphics::UserRequestedToQuit()) {
+    sierpinski::graphics::DrawTriangles(triangles);
     sierpinski::graphics::DrawInstructions(*screen_dim);
   }
 

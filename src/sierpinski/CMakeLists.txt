@@ -4,6 +4,6 @@ add_executable(${CMAKE_PROJECT_NAME})
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE sierpinski.cpp)
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE graphics)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE graphics util)
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION "${SIERPINSKI_BIN_DIR}")
