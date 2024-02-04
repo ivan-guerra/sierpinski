@@ -5,17 +5,16 @@
 namespace sierpinski {
 namespace util {
 
-Triangle CreateCenteredTriangle(const Point2D& center,
-                                int side_length) noexcept {
+Triangle CreateCenteredTriangle(const Point2D& center, int dist) noexcept {
   Triangle centered_triangle;
   /* top vertex */
-  centered_triangle.vertices[0] = {.x = center.x, .y = center.y - side_length};
+  centered_triangle.vertices[0] = {.x = center.x, .y = center.y - dist};
   /* bottom left vertex */
-  centered_triangle.vertices[1] = {.x = center.x - side_length * 2,
-                                   .y = center.y + side_length};
+  centered_triangle.vertices[1] = {.x = center.x - dist * 2,
+                                   .y = center.y + dist};
   /*bottom right vertex */
-  centered_triangle.vertices[2] = {.x = center.x + side_length * 2,
-                                   .y = center.y + side_length};
+  centered_triangle.vertices[2] = {.x = center.x + dist * 2,
+                                   .y = center.y + dist};
 
   return centered_triangle;
 }
