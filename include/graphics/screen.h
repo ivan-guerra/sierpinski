@@ -61,7 +61,7 @@ void DrawInstructions(const ScreenDimension& screen_dim) noexcept;
 /**
  * \brief Return \c true if the user pressed 'q' to quit the app.
  */
-[[nodiscard]] std::optional<bool> UserRequestedToQuit() noexcept;
+[[nodiscard]] bool UserRequestedToQuit() noexcept;
 
 }  // namespace graphics
 }  // namespace sierpinski

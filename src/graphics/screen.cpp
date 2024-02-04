@@ -55,10 +55,7 @@ void DrawInstructions(const ScreenDimension& screen_dim) noexcept {
   ::refresh();
 }
 
-std::optional<bool> UserRequestedToQuit() noexcept {
-  int c = ::getch();
-  return (ERR == c) ? std::nullopt : std::optional<bool>(c == 'q');
-}
+bool UserRequestedToQuit() noexcept { return ('q' == ::getch()); }
 
 }  // namespace graphics
 }  // namespace sierpinski
