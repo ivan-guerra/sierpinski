@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "graphics/screen.h"
+
 static void PrintUsage() noexcept {
   std::cout << "usage: sierpinski [OPTION]..." << std::endl;
   std::cout << "an ncurses rendering of sierpinski's triangle" << std::endl;
@@ -30,6 +32,30 @@ static void PrintErrAndExit(const std::string& err_msg) noexcept {
     PrintErrAndExit(std::string(optarg) + " is out of uint range");
   }
   return value;
+}
+
+static void RunDrawLoop(unsigned int degree, unsigned int side_length,
+                        unsigned int refresh_rate_sec) noexcept {
+  /* Setup a blank screen. */
+  std::optional<sierpinski::graphics::ScreenDimension> screen_dim =
+      sierpinski::graphics::InitScreen();
+  if (!screen_dim) {
+    PrintErrAndExit("failed to initialize screen");
+  }
+
+  /* The refresh rate drives how long we wait for user input before increasing
+   * the degree of the fractal and drawing it on screen. */
+  sierpinski::graphics::EnableInputDelay(refresh_rate_sec * 1000);
+
+  (void)degree;
+  (void)side_length;
+  while (!sierpinski::graphics::UserRequestedToQuit()) {
+    sierpinski::graphics::DrawInstructions(*screen_dim);
+  }
+
+  /* Cleanup. */
+  sierpinski::graphics::DisableInputDelay();
+  sierpinski::graphics::TerminateScreen();
 }
 
 int main(int argc, char** argv) {
@@ -65,5 +91,8 @@ int main(int argc, char** argv) {
         std::exit(EXIT_FAILURE);
     }
   }
+
+  RunDrawLoop(degree, side_length, refresh_rate_sec);
+
   std::exit(EXIT_SUCCESS);
 }
