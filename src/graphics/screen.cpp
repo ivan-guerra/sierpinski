@@ -37,6 +37,10 @@ void TerminateScreen() noexcept { ::endwin(); }
 
 void Clear() noexcept { ::clear(); }
 
+void EnableInputDelay(int delay_ms) noexcept { ::timeout(delay_ms); }
+
+void DisableInputDelay() noexcept { ::timeout(-1); }
+
 void DrawObject(const std::vector<Triangle>& triangles) noexcept {
   for (const Triangle& triangle : triangles) {
     for (const Point2D& vertex : triangle.vertices) {

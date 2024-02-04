@@ -34,6 +34,19 @@ void TerminateScreen() noexcept;
 void Clear() noexcept;
 
 /**
+ * \brief Set the ncurses input delay.
+ * \details Setting the delay too high can cause the application to appear laggy
+ *          whereas setting the delay too low can waste CPU cycles.
+ * \param [in] delay_ms Input delay in milliseconds.
+ */
+void EnableInputDelay(int delay_ms) noexcept;
+
+/**
+ * \brief Clear input delay settings previously set by EnableInputDelay().
+ */
+void DisableInputDelay() noexcept;
+
+/**
  * \brief Render all triangles in \p triangles on screen.
  * \param [in] triangles A set of Sierpinski triangles to be rendered on screen.
  */
