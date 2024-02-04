@@ -50,7 +50,7 @@ void DisableInputDelay() noexcept;
  * \brief Render all triangles in \p triangles on screen.
  * \param [in] triangles A set of Sierpinski triangles to be rendered on screen.
  */
-void DrawObject(const std::vector<Triangle>& triangles) noexcept;
+void DrawTriangles(const std::vector<Triangle>& triangles) noexcept;
 
 /**
  * \brief Print a help message on screen.
