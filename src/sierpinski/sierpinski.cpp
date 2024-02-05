@@ -1,14 +1,38 @@
+#include <getopt.h>
+
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <random>
 #include <string>
+#include <thread>
 
 #include "common/types.h"
 #include "graphics/screen.h"
 
+static void PrintUsage() noexcept {
+  std::cout << "usage: sierpinski [OPTION]..." << std::endl;
+  std::cout << "an ncurses rendering of sierpinski's triangle" << std::endl;
+  std::cout << "\t-r, --refresh-rate\tdelay between iterations microseconds"
+            << std::endl;
+  std::cout << "\t-h, --help\t\tprint this help page" << std::endl;
+}
+
 static void PrintErrAndExit(const std::string& err_msg) noexcept {
   std::cerr << "error: " << err_msg;
   std::exit(EXIT_FAILURE);
+}
+
+[[nodiscard]] static unsigned int ParseUnsignedInt(const char* optarg) {
+  unsigned int value = 0;
+  try {
+    value = std::stoul(optarg);
+  } catch (const std::invalid_argument& e) {
+    PrintErrAndExit("cannot convert '" + std::string(optarg) + "' to uint");
+  } catch (const std::out_of_range& e) {
+    PrintErrAndExit(std::string(optarg) + " is out of uint range");
+  }
+  return value;
 }
 
 [[nodiscard]] static int GetRandomInt(int min, int max) noexcept {
@@ -36,7 +60,8 @@ static void PrintErrAndExit(const std::string& err_msg) noexcept {
  * generating the triangles:
  * https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle#Chaos_game */
 static void DrawSierpinskiTriangles(
-    const sierpinski::graphics::ScreenDimension& screen_dim) noexcept {
+    const sierpinski::graphics::ScreenDimension& screen_dim,
+    unsigned int refresh_rate_usec) noexcept {
   sierpinski::common::Triangle base;
   base.vertices[0] = {.x = 0, .y = 0};
   base.vertices[1] = {.x = screen_dim.width / 2, .y = screen_dim.height};
@@ -56,10 +81,12 @@ static void DrawSierpinskiTriangles(
     yi = (yi + base.vertices[index].y) / 2;
 
     sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*', GetRandColor());
+
+    std::this_thread::sleep_for(std::chrono::microseconds(refresh_rate_usec));
   }
 }
 
-int main() {
+static void RunDrawLoop(unsigned int refresh_rate_usec) noexcept {
   std::optional<sierpinski::graphics::ScreenDimension> screen_dim =
       sierpinski::graphics::InitScreen();
   if (!screen_dim) {
@@ -67,7 +94,7 @@ int main() {
   }
 
   /* Show us the Sierpinski Triangles! */
-  DrawSierpinskiTriangles(*screen_dim);
+  DrawSierpinskiTriangles(*screen_dim, refresh_rate_usec);
 
   /* Print a banner telling the user how to exit. */
   sierpinski::graphics::DrawStr("press any key to quit",
@@ -79,6 +106,35 @@ int main() {
 
   /* Cleanup. */
   sierpinski::graphics::TerminateScreen();
+}
+
+int main(int argc, char** argv) {
+  struct option long_options[] = {
+      {"refresh-rate", required_argument, 0, 'r'},
+      {"help", no_argument, 0, 'h'},
+      {0, 0, 0, 0},
+  };
+
+  int opt = 0;
+  int long_index = 0;
+  unsigned int refresh_rate_usec = 100;
+  while (-1 != (opt = ::getopt_long(argc, argv, "hr:",
+                                    static_cast<struct option*>(long_options),
+                                    &long_index))) {
+    switch (opt) {
+      case 'r':
+        refresh_rate_usec = ParseUnsignedInt(optarg);
+        break;
+      case 'h':
+        PrintUsage();
+        std::exit(EXIT_SUCCESS);
+      case '?':
+        std::cerr << "error: unknown option -> " << opt << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+  }
+
+  RunDrawLoop(refresh_rate_usec);
 
   std::exit(EXIT_SUCCESS);
 }
