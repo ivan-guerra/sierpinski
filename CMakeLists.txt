@@ -2,16 +2,12 @@ cmake_minimum_required(VERSION 3.27)
 
 project(sierpinski DESCRIPTION "render sierpinski's triangle using ncurses")
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
 set(SIERPINSKI_BIN_DIR
     "${CMAKE_SOURCE_DIR}/bin"
     CACHE STRING "${PROJECT_NAME} binary directory.")
 set(SIERPINSKI_INCLUDE_DIR
     "${CMAKE_SOURCE_DIR}/include"
     CACHE STRING "${PROJECT_NAME} include directory.")
-
-include(FetchContent)
 
 set(COMMON_FLAGS -std=c++2a)
 
