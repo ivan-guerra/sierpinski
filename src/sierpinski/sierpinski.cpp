@@ -13,7 +13,11 @@
 static void PrintUsage() noexcept {
   std::cout << "usage: sierpinski [OPTION]..." << std::endl;
   std::cout << "an ncurses rendering of sierpinski's triangle" << std::endl;
-  std::cout << "\t-r, --refresh-rate\tdelay between iterations microseconds"
+  std::cout << "\t-i, --max-iterations\tmax number of simulation iterations "
+               "(default 10000)"
+            << std::endl;
+  std::cout << "\t-r, --refresh-rate\tdelay between iterations in microseconds "
+               "(default 100)"
             << std::endl;
   std::cout << "\t-h, --help\t\tprint this help page" << std::endl;
 }
@@ -61,7 +65,7 @@ static void PrintErrAndExit(const std::string& err_msg) noexcept {
  * https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle#Chaos_game */
 static void DrawSierpinskiTriangles(
     const sierpinski::graphics::ScreenDimension& screen_dim,
-    unsigned int refresh_rate_usec) noexcept {
+    unsigned int max_iterations, unsigned int refresh_rate_usec) noexcept {
   sierpinski::common::Triangle base;
   base.vertices[0] = {.x = 0, .y = 0};
   base.vertices[1] = {.x = screen_dim.width / 2, .y = screen_dim.height};
@@ -72,8 +76,7 @@ static void DrawSierpinskiTriangles(
   sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*', GetRandColor());
 
   int index = 0;
-  const int kMaxIter = 10000;
-  for (int i = 0; i < kMaxIter; ++i) {
+  for (unsigned int i = 0; i < max_iterations; ++i) {
     index = GetRandomInt(0, std::numeric_limits<int>::max()) %
             sierpinski::common::kTriangleVertices;
 
@@ -86,7 +89,8 @@ static void DrawSierpinskiTriangles(
   }
 }
 
-static void RunDrawLoop(unsigned int refresh_rate_usec) noexcept {
+static void RunDrawLoop(unsigned int max_iterations,
+                        unsigned int refresh_rate_usec) noexcept {
   std::optional<sierpinski::graphics::ScreenDimension> screen_dim =
       sierpinski::graphics::InitScreen();
   if (!screen_dim) {
@@ -94,7 +98,7 @@ static void RunDrawLoop(unsigned int refresh_rate_usec) noexcept {
   }
 
   /* Show us the Sierpinski Triangles! */
-  DrawSierpinskiTriangles(*screen_dim, refresh_rate_usec);
+  DrawSierpinskiTriangles(*screen_dim, max_iterations, refresh_rate_usec);
 
   /* Print a banner telling the user how to exit. */
   sierpinski::graphics::DrawStr("press any key to quit",
@@ -110,6 +114,7 @@ static void RunDrawLoop(unsigned int refresh_rate_usec) noexcept {
 
 int main(int argc, char** argv) {
   struct option long_options[] = {
+      {"max-iterations", required_argument, 0, 'i'},
       {"refresh-rate", required_argument, 0, 'r'},
       {"help", no_argument, 0, 'h'},
       {0, 0, 0, 0},
@@ -117,11 +122,15 @@ int main(int argc, char** argv) {
 
   int opt = 0;
   int long_index = 0;
+  unsigned int max_iterations = 10000;
   unsigned int refresh_rate_usec = 100;
-  while (-1 != (opt = ::getopt_long(argc, argv, "hr:",
+  while (-1 != (opt = ::getopt_long(argc, argv, "hi:r:",
                                     static_cast<struct option*>(long_options),
                                     &long_index))) {
     switch (opt) {
+      case 'i':
+        max_iterations = ParseUnsignedInt(optarg);
+        break;
       case 'r':
         refresh_rate_usec = ParseUnsignedInt(optarg);
         break;
@@ -134,7 +143,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  RunDrawLoop(refresh_rate_usec);
+  RunDrawLoop(max_iterations, refresh_rate_usec);
 
   std::exit(EXIT_SUCCESS);
 }
