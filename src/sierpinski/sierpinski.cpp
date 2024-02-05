@@ -4,7 +4,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
 #include "common/types.h"
 #include "graphics/screen.h"
@@ -49,12 +48,10 @@ static void RunDrawLoop(unsigned int degree,
    * the degree of the fractal and drawing it on screen. */
   sierpinski::graphics::EnableInputDelay(refresh_rate_ms);
 
-  std::vector<sierpinski::Triangle> triangles(
-      1,
-      sierpinski::util::CreateCenteredTriangle(
-          {.x = screen_dim->width / 2, .y = screen_dim->height / 2}, degree));
+  sierpinski::Triangle triangle = sierpinski::util::CreateCenteredTriangle(
+      {.x = screen_dim->width / 2, .y = screen_dim->height / 2}, degree);
   while (!sierpinski::graphics::UserRequestedToQuit()) {
-    sierpinski::graphics::DrawTriangles(triangles);
+    sierpinski::graphics::DrawTriangle(triangle);
     sierpinski::graphics::DrawInstructions(*screen_dim);
   }
 

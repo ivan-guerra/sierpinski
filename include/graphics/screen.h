@@ -2,7 +2,6 @@
 #define SCREEN_H_
 
 #include <optional>
-#include <vector>
 
 #include "common/types.h"
 
@@ -47,10 +46,11 @@ void EnableInputDelay(int delay_ms) noexcept;
 void DisableInputDelay() noexcept;
 
 /**
- * \brief Render all triangles in \p triangles on screen.
- * \param [in] triangles A set of Sierpinski triangles to be rendered on screen.
+ * \brief Render \p triangle on the screen.
+ * \details The rendering includes the vertices of the triangle and all edges.
+ * \param [in] triangle A Sierpinski triangle to be rendered on screen.
  */
-void DrawTriangles(const std::vector<Triangle>& triangles) noexcept;
+void DrawTriangle(const Triangle& triangle) noexcept;
 
 /**
  * \brief Print a help message on screen.

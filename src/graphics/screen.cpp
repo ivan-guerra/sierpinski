@@ -11,26 +11,6 @@
 namespace sierpinski {
 namespace graphics {
 
-static void DrawTriangle(const sierpinski::Triangle& triangle) noexcept {
-  auto DrawLineSegment = [](const sierpinski::LineSegment& line) {
-    for (const Point2D& point : line) {
-      mvaddch(point.y, point.x, '*');
-    }
-  };
-
-  LineSegment left_side = sierpinski::util::CreateLineSegment(
-      triangle.vertices[0], triangle.vertices[1]);
-  DrawLineSegment(left_side);
-
-  LineSegment right_side = sierpinski::util::CreateLineSegment(
-      triangle.vertices[0], triangle.vertices[2]);
-  DrawLineSegment(right_side);
-
-  LineSegment bottom_side = sierpinski::util::CreateLineSegment(
-      triangle.vertices[1], triangle.vertices[2]);
-  DrawLineSegment(bottom_side);
-}
-
 std::optional<ScreenDimension> InitScreen() noexcept {
   if (!::initscr()) {
     return std::nullopt;
@@ -64,10 +44,25 @@ void EnableInputDelay(int delay_ms) noexcept { ::timeout(delay_ms); }
 
 void DisableInputDelay() noexcept { ::timeout(-1); }
 
-void DrawTriangles(const std::vector<Triangle>& triangles) noexcept {
-  for (const Triangle& triangle : triangles) {
-    DrawTriangle(triangle);
-  }
+void DrawTriangle(const Triangle& triangle) noexcept {
+  auto DrawLineSegment = [](const sierpinski::LineSegment& line) {
+    for (const Point2D& point : line) {
+      mvaddch(point.y, point.x, '*');
+    }
+  };
+
+  LineSegment left_side = sierpinski::util::CreateLineSegment(
+      triangle.vertices[0], triangle.vertices[1]);
+  DrawLineSegment(left_side);
+
+  LineSegment right_side = sierpinski::util::CreateLineSegment(
+      triangle.vertices[0], triangle.vertices[2]);
+  DrawLineSegment(right_side);
+
+  LineSegment bottom_side = sierpinski::util::CreateLineSegment(
+      triangle.vertices[1], triangle.vertices[2]);
+  DrawLineSegment(bottom_side);
+
   ::refresh();
 }
 
