@@ -17,6 +17,8 @@ using LineSegment = std::vector<Point2D>; /**< Points on a line segment. */
 struct Point2D {
   int x = 0; /**< x coordinate. */
   int y = 0; /**< y coordinate. */
+
+  auto operator<=>(const Point2D&) const = default;
 };
 
 /**

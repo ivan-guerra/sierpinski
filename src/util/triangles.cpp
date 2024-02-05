@@ -24,7 +24,7 @@ LineSegment CreateLineSegment(const Point2D& start,
   LineSegment line_segment = {start, end};
   Point2D curr = start;
   int i = 0;
-  while (!(curr.x == end.x && curr.y == end.y)) {
+  while (curr != end) {
     int cnt = 0; /* Number of coordinate updates done this iteration. */
 
     if (curr.x > end.x) {
