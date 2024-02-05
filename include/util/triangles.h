@@ -31,6 +31,14 @@ namespace util {
 [[nodiscard]] LineSegment CreateLineSegment(const Point2D& start,
                                             const Point2D& end) noexcept;
 
+/**
+ * \brief Return the midpoint of \p a and \p b.
+ * \param [in] a A point in 2D space.
+ * \param [in] b A point in 2D space.
+ * \returns The midpoint of \p a and \p b.
+ */
+[[nodiscard]] Point2D MidPoint(const Point2D& a, const Point2D& b) noexcept;
+
 }  // namespace util
 }  // namespace sierpinski
 

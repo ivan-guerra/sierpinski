@@ -59,5 +59,9 @@ LineSegment CreateLineSegment(const Point2D& start,
   return line_segment;
 }
 
+Point2D MidPoint(const Point2D& a, const Point2D& b) noexcept {
+  return {.x = (a.x + b.x) / 2, .y = (a.y + b.y) / 2};
+}
+
 }  // namespace util
 }  // namespace sierpinski
