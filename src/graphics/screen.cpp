@@ -4,9 +4,9 @@
 #include <ncurses.h>
 
 #include <optional>
+#include <vector>
 
 #include "common/types.h"
-#include "util/triangles.h"
 
 namespace sierpinski {
 namespace graphics {
@@ -21,7 +21,7 @@ std::optional<ScreenDimension> InitScreen() noexcept {
    *   (2) enable the keypad so we can exit via keypress
    *   (3) disable character echoing
    *   (4) hide the cursor
-   *   (5) initialize colors
+   *   (5) start the color engine
    */
   if (ERR == ::cbreak() || ERR == ::keypad(stdscr, TRUE) || ERR == ::noecho() ||
       ERR == ::curs_set(0) || ERR == ::start_color()) {
@@ -43,7 +43,6 @@ std::optional<ScreenDimension> InitScreen() noexcept {
 
   /* Fetch the screen dimensions. */
   ScreenDimension screen_dim = {.width = 0, .height = 0};
-
   /* Funny, getmaxyx() macro has an undefined return value. */
   getmaxyx(stdscr, screen_dim.height, screen_dim.width);
 
@@ -52,38 +51,19 @@ std::optional<ScreenDimension> InitScreen() noexcept {
 
 void TerminateScreen() noexcept { ::endwin(); }
 
-void Clear() noexcept { ::clear(); }
-
-void EnableInputDelay(int delay_ms) noexcept { ::timeout(delay_ms); }
-
-void DisableInputDelay() noexcept { ::timeout(-1); }
-
-void DrawTriangle(const Triangle& triangle, Color color) noexcept {
-  auto DrawLineSegment = [&color](const sierpinski::LineSegment& line) {
-    ::attron(COLOR_PAIR(color) | A_BOLD);
-    for (const Point2D& point : line) {
-      mvaddch(point.y, point.x, '*');
-    }
-    ::attroff(COLOR_PAIR(color) | A_BOLD);
-  };
-
-  LineSegment left_side = sierpinski::util::CreateLineSegment(
-      triangle.vertices[0], triangle.vertices[1]);
-  DrawLineSegment(left_side);
-
-  LineSegment right_side = sierpinski::util::CreateLineSegment(
-      triangle.vertices[0], triangle.vertices[2]);
-  DrawLineSegment(right_side);
-
-  LineSegment bottom_side = sierpinski::util::CreateLineSegment(
-      triangle.vertices[1], triangle.vertices[2]);
-  DrawLineSegment(bottom_side);
+void DrawChar(const sierpinski::common::Point2D& pos, char symbol,
+              Color color) noexcept {
+  ::attron(COLOR_PAIR(color) | A_BOLD);
+  mvaddch(pos.y, pos.x, symbol);
+  ::attroff(COLOR_PAIR(color) | A_BOLD);
 
   ::refresh();
 }
 
-void DrawInstructions(const ScreenDimension& screen_dim) noexcept {
-  ::mvprintw(screen_dim.height - 1, 0, "%s", "press any key to quit");
+void DrawStr(const std::string& str,
+             const sierpinski::common::Point2D& pos) noexcept {
+  ::mvprintw(pos.y, pos.x, "%s", str.c_str());
+
   ::refresh();
 }
 

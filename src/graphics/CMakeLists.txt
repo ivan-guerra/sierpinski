@@ -16,4 +16,4 @@ target_include_directories(
   PRIVATE ${CURSES_INCLUDE_DIR}
   PUBLIC ${SIERPINSKI_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${CURSES_LIBRARIES} util)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CURSES_LIBRARIES})

@@ -2,6 +2,7 @@
 #define SCREEN_H_
 
 #include <optional>
+#include <string>
 
 #include "common/types.h"
 
@@ -41,37 +42,22 @@ struct ScreenDimension {
 void TerminateScreen() noexcept;
 
 /**
- * \brief Clear the screen.
+ * \brief Render \p symbol at position \p pos on the screen.
+ * \param [in] pos    Position at which the character will be rendered on
+ *                    screen.
+ * \param [in] symbol The character that will be rendered.
+ * \param [in] color  The color of the printed character.
  */
-void Clear() noexcept;
+void DrawChar(const sierpinski::common::Point2D& pos, char symbol,
+              Color color = Color::kWhite) noexcept;
 
 /**
- * \brief Set the ncurses input delay.
- * \details Setting the delay too high can cause the application to appear laggy
- *          whereas setting the delay too low can waste CPU cycles.
- * \param [in] delay_ms Input delay in milliseconds.
+ * \brief Draw the string \p str at position \p pos on the screen.
+ * \param [in] str The string to be printed.
+ * \param [in] pos Position at which the string will be printed.
  */
-void EnableInputDelay(int delay_ms) noexcept;
-
-/**
- * \brief Clear input delay settings previously set by EnableInputDelay().
- */
-void DisableInputDelay() noexcept;
-
-/**
- * \brief Render \p triangle on the screen.
- * \details The rendering includes the vertices of the triangle and all edges.
- * \param [in] triangle A Sierpinski triangle to be rendered on screen.
- * \param [in] color    The color of each character being rendered.
- */
-void DrawTriangle(const Triangle& triangle,
-                  Color color = Color::kWhite) noexcept;
-
-/**
- * \brief Print a help message on screen.
- * \param [in] screen_dim Screen (i.e., terminal) dimensions.
- */
-void DrawInstructions(const ScreenDimension& screen_dim) noexcept;
+void DrawStr(const std::string& str,
+             const sierpinski::common::Point2D& pos) noexcept;
 
 /**
  * \brief Return \c true if the user pressed any key.

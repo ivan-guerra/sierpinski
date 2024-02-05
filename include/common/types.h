@@ -1,15 +1,10 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
-#include <vector>
-
 namespace sierpinski {
+namespace common {
 
 static constexpr int kTriangleVertices = 3; /**< Triangle vertex count. */
-
-struct Point2D;
-
-using LineSegment = std::vector<Point2D>; /**< Points on a line segment. */
 
 /**
  * \brief A point in 2D space.
@@ -17,8 +12,6 @@ using LineSegment = std::vector<Point2D>; /**< Points on a line segment. */
 struct Point2D {
   int x = 0; /**< x coordinate. */
   int y = 0; /**< y coordinate. */
-
-  auto operator<=>(const Point2D&) const = default;
 };
 
 /**
@@ -28,6 +21,7 @@ struct Triangle {
   Point2D vertices[kTriangleVertices]; /**< Triangle vertice coordinates. */
 };
 
+}  // namespace common
 }  // namespace sierpinski
 
 #endif

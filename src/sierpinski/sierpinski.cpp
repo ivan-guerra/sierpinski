@@ -1,90 +1,61 @@
-#include <getopt.h>
-
 #include <cstdlib>
 #include <iostream>
-#include <stdexcept>
+#include <random>
 #include <string>
 
 #include "common/types.h"
 #include "graphics/screen.h"
-#include "util/triangles.h"
-
-static void PrintUsage() noexcept {
-  std::cout << "usage: sierpinski [OPTION]..." << std::endl;
-  std::cout << "an ncurses rendering of sierpinski's triangle" << std::endl;
-  std::cout << "\t-d, --degree\tfractal degree (default 2)" << std::endl;
-  std::cout << "\t-h, --help\tprint this help page" << std::endl;
-}
 
 static void PrintErrAndExit(const std::string& err_msg) noexcept {
-  std::cerr << "error: " << err_msg << std::endl;
+  std::cerr << "error: " << err_msg;
   std::exit(EXIT_FAILURE);
 }
 
-[[nodiscard]] static unsigned int ParseUnsignedInt(const char* optarg) {
-  unsigned int value = 0;
-  try {
-    value = std::stoul(optarg);
-  } catch (const std::invalid_argument& e) {
-    PrintErrAndExit("cannot convert '" + std::string(optarg) + "' to uint");
-  } catch (const std::out_of_range& e) {
-    PrintErrAndExit(std::string(optarg) + " is out of uint range");
-  }
-  return value;
+[[nodiscard]] static int GetRandomInt(int min, int max) noexcept {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distr(min, max);
+
+  return distr(gen);
 }
 
-static void Sierpinski(const sierpinski::Triangle& triangle,
-                       int degree) noexcept {
-  sierpinski::graphics::DrawTriangle(triangle);
-  if (degree) {
-    const sierpinski::Point2D& v0 = triangle.vertices[0];
-    const sierpinski::Point2D& v1 = triangle.vertices[1];
-    const sierpinski::Point2D& v2 = triangle.vertices[2];
+static void DrawSierpinskiTriangles(
+    const sierpinski::graphics::ScreenDimension& screen_dim) noexcept {
+  sierpinski::common::Triangle base;
+  base.vertices[0] = {.x = 0, .y = 0};
+  base.vertices[1] = {.x = screen_dim.width / 2, .y = screen_dim.height};
+  base.vertices[2] = {.x = screen_dim.width, .y = 0};
 
-    sierpinski::Triangle s1;
-    s1.vertices[0] = v0;
-    s1.vertices[1] = sierpinski::util::MidPoint(v0, v1);
-    s1.vertices[2] = sierpinski::util::MidPoint(v0, v2);
+  int yi = GetRandomInt(0, screen_dim.width);
+  int xi = GetRandomInt(0, screen_dim.height);
+  sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*');
 
-    sierpinski::Triangle s2;
-    s2.vertices[0] = v1;
-    s2.vertices[1] = sierpinski::util::MidPoint(v0, v1);
-    s2.vertices[2] = sierpinski::util::MidPoint(v1, v2);
+  int index = 0;
+  const int kMaxIter = 10000;
+  for (int i = 0; i < kMaxIter; ++i) {
+    index = GetRandomInt(0, std::numeric_limits<int>::max()) %
+            sierpinski::common::kTriangleVertices;
 
-    sierpinski::Triangle s3;
-    s3.vertices[0] = v2;
-    s3.vertices[1] = sierpinski::util::MidPoint(v2, v1);
-    s3.vertices[2] = sierpinski::util::MidPoint(v0, v2);
+    yi = (yi + base.vertices[index].y) / 2;
+    xi = (xi + base.vertices[index].x) / 2;
 
-    Sierpinski(s1, degree - 1);
-    Sierpinski(s2, degree - 1);
-    Sierpinski(s3, degree - 1);
+    sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*');
   }
 }
 
-static void DrawSierpinskiTriangles(unsigned int degree) noexcept {
-  /* Setup a blank screen. */
+int main() {
   std::optional<sierpinski::graphics::ScreenDimension> screen_dim =
       sierpinski::graphics::InitScreen();
   if (!screen_dim) {
     PrintErrAndExit("failed to initialize screen");
   }
 
-  /* Construction of the initial triangle shown on the screen. This is
-   * the fractal with degree = 0. The code below tries to make the initial
-   * triangle fill the entire screen. */
-  sierpinski::Point2D screen_center = {.x = screen_dim->width / 2,
-                                       .y = screen_dim->height / 2};
-  int max_dist =
-      std::min(screen_dim->width / 2 - 1, screen_dim->height / 2 - 1);
-  sierpinski::Triangle triangle =
-      sierpinski::util::CreateCenteredTriangle(screen_center, max_dist);
+  /* Show us the Sierpinski Triangles! */
+  DrawSierpinskiTriangles(*screen_dim);
 
-  /* The actual algorithm magic happens here. */
-  Sierpinski(triangle, degree);
-
-  /* Place prompt telling the user how to exit. */
-  sierpinski::graphics::DrawInstructions(*screen_dim);
+  /* Print a banner telling the user how to exit. */
+  sierpinski::graphics::DrawStr("press any key to quit",
+                                {.x = 0, .y = screen_dim->height - 1});
 
   /* Wait for the user to press a key before cleaning up. */
   while (!sierpinski::graphics::UserPressedKey()) {
@@ -92,35 +63,6 @@ static void DrawSierpinskiTriangles(unsigned int degree) noexcept {
 
   /* Cleanup. */
   sierpinski::graphics::TerminateScreen();
-}
-
-int main(int argc, char** argv) {
-  struct option long_options[] = {
-      {"degree", required_argument, 0, 'd'},
-      {"help", no_argument, 0, 'h'},
-      {0, 0, 0, 0},
-  };
-
-  int opt = 0;
-  int long_index = 0;
-  unsigned int degree = 2;
-  while (-1 != (opt = ::getopt_long(argc, argv, "hd:s:r:",
-                                    static_cast<struct option*>(long_options),
-                                    &long_index))) {
-    switch (opt) {
-      case 'd':
-        degree = ParseUnsignedInt(optarg);
-        break;
-      case 'h':
-        PrintUsage();
-        std::exit(EXIT_SUCCESS);
-      case '?':
-        std::cerr << "error: unknown option -> " << opt << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
-  }
-
-  DrawSierpinskiTriangles(degree);
 
   std::exit(EXIT_SUCCESS);
 }
