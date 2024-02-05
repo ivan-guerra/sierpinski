@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = "sierpinski"
+PROJECT_NAME           = "Sierpinski"
 PROJECT_NUMBER         =
 PROJECT_BRIEF          = "Render Sierpinski's Triangle Using ncurses"
 OUTPUT_DIRECTORY       = @CMAKE_CURRENT_SOURCE_DIR@/

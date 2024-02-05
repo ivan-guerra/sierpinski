@@ -10,7 +10,7 @@ namespace sierpinski {
 namespace graphics {
 
 /**
- * \brief Supported char colors.
+ * \brief Supported character colors.
  */
 enum Color {
   kRed = 1,
@@ -26,8 +26,8 @@ enum Color {
  * \brief Screen Dimensions
  */
 struct ScreenDimension {
-  int width = 0;  /**< Screen width */
-  int height = 0; /**< Screen height */
+  int width = 0;  /**< Screen width. */
+  int height = 0; /**< Screen height. */
 };
 
 /**
@@ -37,7 +37,7 @@ struct ScreenDimension {
 [[nodiscard]] std::optional<ScreenDimension> InitScreen() noexcept;
 
 /**
- * \brief Cleanup ncurses window(s).
+ * \brief Cleanup ncurses screen.
  */
 void TerminateScreen() noexcept;
 

@@ -85,6 +85,7 @@ static void DrawSierpinskiTriangles(
 
     sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*', GetRandColor());
 
+    /* A delay inserted to speed or slow down the spawn rate of the points. */
     std::this_thread::sleep_for(std::chrono::microseconds(refresh_rate_usec));
   }
 }
