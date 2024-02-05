@@ -19,6 +19,22 @@ static void PrintErrAndExit(const std::string& err_msg) noexcept {
   return distr(gen);
 }
 
+[[nodiscard]] static sierpinski::graphics::Color GetRandColor() noexcept {
+  static const std::vector<sierpinski::graphics::Color> kColors = {
+      sierpinski::graphics::Color::kRed,
+      sierpinski::graphics::Color::kGreen,
+      sierpinski::graphics::Color::kBlue,
+      sierpinski::graphics::Color::kYellow,
+      sierpinski::graphics::Color::kMagenta,
+      sierpinski::graphics::Color::kCyan,
+      sierpinski::graphics::Color::kWhite,
+  };
+  return kColors[GetRandomInt(0, kColors.size() - 1)];
+}
+
+/* DrawSierpinskiTriangles() implements the Chaos Game approach to
+ * generating the triangles:
+ * https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle#Chaos_game */
 static void DrawSierpinskiTriangles(
     const sierpinski::graphics::ScreenDimension& screen_dim) noexcept {
   sierpinski::common::Triangle base;
@@ -26,9 +42,9 @@ static void DrawSierpinskiTriangles(
   base.vertices[1] = {.x = screen_dim.width / 2, .y = screen_dim.height};
   base.vertices[2] = {.x = screen_dim.width, .y = 0};
 
-  int yi = GetRandomInt(0, screen_dim.width);
   int xi = GetRandomInt(0, screen_dim.height);
-  sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*');
+  int yi = GetRandomInt(0, screen_dim.width);
+  sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*', GetRandColor());
 
   int index = 0;
   const int kMaxIter = 10000;
@@ -36,10 +52,10 @@ static void DrawSierpinskiTriangles(
     index = GetRandomInt(0, std::numeric_limits<int>::max()) %
             sierpinski::common::kTriangleVertices;
 
-    yi = (yi + base.vertices[index].y) / 2;
     xi = (xi + base.vertices[index].x) / 2;
+    yi = (yi + base.vertices[index].y) / 2;
 
-    sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*');
+    sierpinski::graphics::DrawChar({.x = xi, .y = yi}, '*', GetRandColor());
   }
 }
 
