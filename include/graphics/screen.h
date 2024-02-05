@@ -9,6 +9,19 @@ namespace sierpinski {
 namespace graphics {
 
 /**
+ * \brief Supported char colors.
+ */
+enum Color {
+  kRed = 1,
+  kGreen,
+  kBlue,
+  kYellow,
+  kMagenta,
+  kCyan,
+  kWhite,
+};
+
+/**
  * \brief Screen Dimensions
  */
 struct ScreenDimension {
@@ -49,8 +62,10 @@ void DisableInputDelay() noexcept;
  * \brief Render \p triangle on the screen.
  * \details The rendering includes the vertices of the triangle and all edges.
  * \param [in] triangle A Sierpinski triangle to be rendered on screen.
+ * \param [in] color    The color of each character being rendered.
  */
-void DrawTriangle(const Triangle& triangle) noexcept;
+void DrawTriangle(const Triangle& triangle,
+                  Color color = Color::kWhite) noexcept;
 
 /**
  * \brief Print a help message on screen.
