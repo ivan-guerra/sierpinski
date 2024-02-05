@@ -67,11 +67,11 @@ void DrawTriangle(const Triangle& triangle) noexcept {
 }
 
 void DrawInstructions(const ScreenDimension& screen_dim) noexcept {
-  ::mvprintw(screen_dim.height - 1, 0, "%s", "press q to quit");
+  ::mvprintw(screen_dim.height - 1, 0, "%s", "press any key to quit");
   ::refresh();
 }
 
-bool UserRequestedToQuit() noexcept { return ('q' == ::getch()); }
+bool UserPressedKey() noexcept { return (ERR != ::getch()); }
 
 }  // namespace graphics
 }  // namespace sierpinski

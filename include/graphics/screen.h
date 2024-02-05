@@ -59,9 +59,9 @@ void DrawTriangle(const Triangle& triangle) noexcept;
 void DrawInstructions(const ScreenDimension& screen_dim) noexcept;
 
 /**
- * \brief Return \c true if the user pressed 'q' to quit the app.
+ * \brief Return \c true if the user pressed any key.
  */
-[[nodiscard]] bool UserRequestedToQuit() noexcept;
+[[nodiscard]] bool UserPressedKey() noexcept;
 
 }  // namespace graphics
 }  // namespace sierpinski
