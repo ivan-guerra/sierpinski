@@ -1,3 +1,22 @@
+//! A Sierpinski triangle visualization in the terminal.
+//!
+//! This module implements the chaos game method to generate
+//! a Sierpinski triangle pattern using ASCII characters and
+//! terminal colors.
+//!
+//! # Example
+//!
+//! ```rust
+//! use sierpinski::{Config, ScreenDimension};
+//!
+//! let config = Config {
+//!     screen_dim: ScreenDimension { width: 80, height: 24 },
+//!     max_iterations: 1000,
+//!     refresh_rate_usec: 10000,
+//! };
+//!
+//! run_draw_loop(&config)?;
+//! ```
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
     event::{self, Event, KeyCode},
@@ -10,8 +29,14 @@ use std::io::{stdout, Write};
 use std::thread::sleep;
 use std::time::Duration;
 
+/// Represents the dimensions of a terminal screen in characters.
+///
+/// The coordinate system starts at (0, 0) in the top-left corner,
+/// with x increasing to the right and y increasing downward.
 pub struct ScreenDimension {
+    /// Width of the screen in characters/columns (x-axis), starting from 0.
     pub width: u16,
+    /// Height of the screen in rows (y-axis), starting from 0.
     pub height: u16,
 }
 
@@ -21,9 +46,13 @@ impl ScreenDimension {
     }
 }
 
+/// Configuration for the Sierpinski triangle visualization.
 pub struct Config {
+    /// The dimensions of the terminal screen.
     pub screen_dim: ScreenDimension,
+    /// Maximum number of points to plot.
     pub max_iterations: u32,
+    /// Delay between plotting points in microseconds.
     pub refresh_rate_usec: u64,
 }
 
@@ -80,6 +109,25 @@ fn draw_asterisk_with_rand_color(position: &Point) -> Result<(), Box<dyn Error>>
     Ok(())
 }
 
+/// Generates and displays a Sierpinski triangle using the chaos game method.
+///
+/// # Algorithm
+///
+/// 1. Creates a base triangle using the screen dimensions.
+/// 2. Starts with a random point.
+/// 3. Repeatedly:
+///    - Selects a random vertex of the base triangle.
+///    - Moves halfway from current point to selected vertex.
+///    - Plots the new point with a random color.
+///
+/// # Arguments
+///
+/// * `config` - Configuration settings including screen dimensions,
+///             iteration count, and refresh rate.
+///
+/// # Returns
+///
+/// * `Result<(), Box<dyn Error>>` - Ok if successful, Error if drawing fails.
 fn draw_sierpinski_triangles(config: &Config) -> Result<(), Box<dyn Error>> {
     let base = Triangle::new(
         Point::new(0, 0),
@@ -106,30 +154,56 @@ fn draw_sierpinski_triangles(config: &Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+/// Runs the main drawing loop for the Sierpinski triangle visualization.
+///
+/// # Details
+///
+/// This function:
+/// 1. Sets up the terminal in raw mode with an alternate screen.
+/// 2. Draws the Sierpinski triangle pattern.
+/// 3. Displays a quit message.
+/// 4. Waits for 'q' or Esc key to exit.
+/// 5. Restores the terminal state.
+///
+/// # Arguments
+///
+/// * `config` - Configuration settings including screen dimensions,
+///             iteration count, and refresh rate.
+///
+/// # Returns
+///
+/// * `Result<(), Box<dyn Error>>` - Ok if successful, Error if terminal operations fail.
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - Terminal mode changes fail.
+/// - Drawing operations fail.
+/// - Event polling fails.
 pub fn run_draw_loop(config: &Config) -> Result<(), Box<dyn Error>> {
     let mut stdout = stdout();
 
-    // Enter raw mode, alternate screen, clear it, and hide the cursor
+    // Enter raw mode, alternate screen, clear it, and hide the cursor.
     terminal::enable_raw_mode()?;
     stdout.execute(EnterAlternateScreen)?;
     stdout.execute(Clear(ClearType::All))?;
     stdout.execute(Hide)?;
 
-    // Draw the Sierpinski triangles
+    // Draw the Sierpinski triangles.
     draw_sierpinski_triangles(config)?;
 
-    // Add the text "Press 'q' to quit" to the bottom of the screen
+    // Add the text "Press 'q' to quit" to the bottom of the screen.
     stdout.execute(MoveTo(0, config.screen_dim.height - 1))?;
     stdout.execute(SetForegroundColor(Color::White))?;
     stdout.execute(Print("press 'q' to quit"))?;
 
-    // Flush to make sure everything is printed
+    // Flush to make sure everything is printed.
     stdout.flush()?;
 
-    // Wait for a key press to exit
+    // Wait for a key press to exit.
     loop {
         if event::poll(std::time::Duration::from_millis(100))? {
-            // Check if an event is a key press
+            // Check if an event is a key press.
             if let Event::Key(key_event) = event::read()? {
                 if key_event.code == KeyCode::Char('q') || key_event.code == KeyCode::Esc {
                     break;
@@ -138,7 +212,7 @@ pub fn run_draw_loop(config: &Config) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Reset terminal state before exit
+    // Reset terminal state before exit.
     stdout.execute(Clear(ClearType::All))?;
     stdout.execute(Show)?;
     stdout.execute(LeaveAlternateScreen)?;
