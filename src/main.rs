@@ -14,20 +14,24 @@ struct Args {
     #[arg(
         short = 'r', 
         long,
-        default_value_t = 1, 
-        value_parser = clap::value_parser!(u64).range(1..=3_600_000),
-        help = "delay between iterations in milliseconds")]
+        default_value_t = 100, 
+        value_parser = clap::value_parser!(u64).range(1..=1_000_000),
+        help = "delay between iterations in microseconds")]
     refresh_rate_msec: u64,
 
 }
 
 fn main() {
     let args = Args::parse();
+    let screen_dim = crossterm::terminal::size().unwrap();
     let config = sierpinski::Config::new(
-        sierpinski::ScreenDimension::new(800, 600),
+        sierpinski::ScreenDimension::new(screen_dim.0, screen_dim.1),
         args.max_iterations,
         args.refresh_rate_msec,
     );
 
-    sierpinski::draw_sierpinski_triangles(&config);
+    if let Err(e) = sierpinski::run_draw_loop(&config) {
+        eprintln!("error: {}", e);
+        std::process::exit(1);
+    } 
 }
