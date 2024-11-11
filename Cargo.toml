@@ -6,3 +6,5 @@ description = "Create a Sierpinski Triangle animation"
 license = "Unlicense"
 
 [dependencies]
+rand = " 0.8.5"
+clap = {version = "4.5.20", features = ["derive"]}
