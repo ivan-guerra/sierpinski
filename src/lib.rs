@@ -10,7 +10,6 @@
 //! use sierpinski::{Config, ScreenDimension};
 //!
 //! let config = Config {
-//!     screen_dim: ScreenDimension { width: 80, height: 24 },
 //!     max_iterations: 1000,
 //!     refresh_rate_usec: 10000,
 //! };
@@ -29,27 +28,8 @@ use std::io::{stdout, Write};
 use std::thread::sleep;
 use std::time::Duration;
 
-/// Represents the dimensions of a terminal screen in characters.
-///
-/// The coordinate system starts at (0, 0) in the top-left corner,
-/// with x increasing to the right and y increasing downward.
-pub struct ScreenDimension {
-    /// Width of the screen in characters/columns (x-axis), starting from 0.
-    pub width: u16,
-    /// Height of the screen in rows (y-axis), starting from 0.
-    pub height: u16,
-}
-
-impl ScreenDimension {
-    pub fn new(width: u16, height: u16) -> ScreenDimension {
-        ScreenDimension { width, height }
-    }
-}
-
 /// Configuration for the Sierpinski triangle visualization.
 pub struct Config {
-    /// The dimensions of the terminal screen.
-    pub screen_dim: ScreenDimension,
     /// Maximum number of points to plot.
     pub max_iterations: u32,
     /// Delay between plotting points in microseconds.
@@ -57,9 +37,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(screen_dim: ScreenDimension, max_iterations: u32, refresh_rate_usec: u64) -> Config {
+    pub fn new(max_iterations: u32, refresh_rate_usec: u64) -> Config {
         Config {
-            screen_dim,
             max_iterations,
             refresh_rate_usec,
         }
@@ -128,15 +107,18 @@ fn draw_asterisk_with_rand_color(position: &Point) -> Result<(), Box<dyn Error>>
 /// # Returns
 ///
 /// * `Result<(), Box<dyn Error>>` - Ok if successful, Error if drawing fails.
-fn draw_sierpinski_triangles(config: &Config) -> Result<(), Box<dyn Error>> {
+fn draw_sierpinski_triangles(
+    config: &Config,
+    screen_dim: &(u16, u16),
+) -> Result<(), Box<dyn Error>> {
     let base = Triangle::new(
         Point::new(0, 0),
-        Point::new(config.screen_dim.width / 2, config.screen_dim.height),
-        Point::new(config.screen_dim.width, 0),
+        Point::new(screen_dim.0 / 2, screen_dim.1),
+        Point::new(screen_dim.0, 0),
     );
 
-    let mut xi = rand::random::<u16>() % config.screen_dim.height;
-    let mut yi = rand::random::<u16>() % config.screen_dim.width;
+    let mut xi = rand::random::<u16>() % screen_dim.1;
+    let mut yi = rand::random::<u16>() % screen_dim.0;
 
     draw_asterisk_with_rand_color(&Point::new(xi, yi))?;
 
@@ -190,10 +172,11 @@ pub fn run_draw_loop(config: &Config) -> Result<(), Box<dyn Error>> {
     stdout.execute(Hide)?;
 
     // Draw the Sierpinski triangles.
-    draw_sierpinski_triangles(config)?;
+    let screen_dim = crossterm::terminal::size()?;
+    draw_sierpinski_triangles(config, &screen_dim)?;
 
     // Add the text "Press 'q' to quit" to the bottom of the screen.
-    stdout.execute(MoveTo(0, config.screen_dim.height - 1))?;
+    stdout.execute(MoveTo(0, screen_dim.1 - 1))?;
     stdout.execute(SetForegroundColor(Color::White))?;
     stdout.execute(Print("press 'q' to quit"))?;
 

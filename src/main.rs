@@ -23,9 +23,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let screen_dim = crossterm::terminal::size().unwrap();
     let config = sierpinski::Config::new(
-        sierpinski::ScreenDimension::new(screen_dim.0, screen_dim.1),
         args.max_iterations,
         args.refresh_rate_msec,
     );
